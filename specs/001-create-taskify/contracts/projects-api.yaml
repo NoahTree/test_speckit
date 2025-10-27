@@ -1,0 +1,241 @@
+openapi: 3.0.3
+info:
+  title: Taskify Projects API
+  description: |
+    REST API for managing projects in Taskify.
+
+    Supports listing all projects, getting project details with tasks, and basic CRUD operations.
+    Initial phase: 3 predefined projects, read-only (no create/update/delete).
+  version: 1.0.0
+  contact:
+    name: Taskify Development Team
+    email: dev@taskify.local
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+  - url: https://localhost:5001/api
+    description: Local development server (HTTPS)
+
+tags:
+  - name: Projects
+    description: Project management endpoints
+
+paths:
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List all projects
+      description: Returns all 3 predefined projects
+      operationId: listProjects
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectDto'
+              example:
+                - id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "Website Redesign"
+                  description: "Modernize company website with new design system"
+                  createdAt: "2025-10-01T10:00:00Z"
+                  updatedAt: "2025-10-15T14:30:00Z"
+                - id: "123e4567-e89b-12d3-a456-426614174001"
+                  name: "Mobile App Launch"
+                  description: "Develop and release iOS and Android applications"
+                  createdAt: "2025-10-05T09:00:00Z"
+                  updatedAt: "2025-10-20T16:45:00Z"
+
+  /projects/{projectId}:
+    get:
+      tags:
+        - Projects
+      summary: Get project by ID
+      description: Returns project details without tasks
+      operationId: getProjectById
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDto'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /projects/{projectId}/with-tasks:
+    get:
+      tags:
+        - Projects
+      summary: Get project with all tasks
+      description: |
+        Returns project details with all associated tasks.
+        Used for rendering Kanban board.
+      operationId: getProjectWithTasks
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project with tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectWithTasksDto'
+              example:
+                id: "123e4567-e89b-12d3-a456-426614174000"
+                name: "Website Redesign"
+                description: "Modernize company website with new design system"
+                createdAt: "2025-10-01T10:00:00Z"
+                updatedAt: "2025-10-15T14:30:00Z"
+                tasks:
+                  - id: "223e4567-e89b-12d3-a456-426614174000"
+                    title: "Design homepage mockup"
+                    status: "Done"
+                    assignedTo: "323e4567-e89b-12d3-a456-426614174000"
+                    assigneeName: "Sarah Chen"
+                    commentCount: 3
+                  - id: "223e4567-e89b-12d3-a456-426614174001"
+                    title: "Implement responsive navigation"
+                    status: "In Progress"
+                    assignedTo: "323e4567-e89b-12d3-a456-426614174001"
+                    assigneeName: "Alex Rodriguez"
+                    commentCount: 1
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      description: Unique project identifier (UUID)
+      schema:
+        type: string
+        format: uuid
+      example: "123e4567-e89b-12d3-a456-426614174000"
+
+  schemas:
+    ProjectDto:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique project identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Project name
+          example: "Website Redesign"
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: Project description (optional)
+          example: "Modernize company website with new design system"
+        createdAt:
+          type: string
+          format: date-time
+          description: Project creation timestamp
+          example: "2025-10-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2025-10-15T14:30:00Z"
+
+    ProjectWithTasksDto:
+      allOf:
+        - $ref: '#/components/schemas/ProjectDto'
+        - type: object
+          required:
+            - tasks
+          properties:
+            tasks:
+              type: array
+              description: All tasks in this project
+              items:
+                $ref: '#/components/schemas/TaskSummaryDto'
+
+    TaskSummaryDto:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - commentCount
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique task identifier
+          example: "223e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Task title
+          example: "Design homepage mockup"
+        status:
+          type: string
+          enum: ["To Do", "In Progress", "In Review", "Done"]
+          description: Current task status
+          example: "In Progress"
+        assignedTo:
+          type: string
+          format: uuid
+          nullable: true
+          description: Assigned user ID (null if unassigned)
+          example: "323e4567-e89b-12d3-a456-426614174000"
+        assigneeName:
+          type: string
+          nullable: true
+          description: Assigned user name (null if unassigned)
+          example: "Sarah Chen"
+        commentCount:
+          type: integer
+          minimum: 0
+          description: Number of comments on this task
+          example: 3
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "NOT_FOUND"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Project not found"
+        details:
+          type: object
+          nullable: true
+          description: Additional error details
+          additionalProperties: true

@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: Taskify Notifications API
+  description: |
+    Real-time notification API for Taskify using SignalR.
+
+    This API provides webhooks and SignalR events for real-time updates:
+    - Task status changes (drag-and-drop operations)
+    - Task assignment changes
+    - New comments added
+    - Comment edits/deletions
+
+    **Note**: SignalR events are defined here for documentation purposes.
+    Actual real-time communication uses SignalR WebSocket protocol, not REST.
+  version: 1.0.0
+  contact:
+    name: Taskify Development Team
+    email: dev@taskify.local
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+  - url: https://localhost:5001/api
+    description: Local development server (HTTPS)
+
+tags:
+  - name: Notifications
+    description: Real-time notification endpoints
+  - name: SignalR Events
+    description: |
+      SignalR event definitions (not REST endpoints).
+      Blazor Server components subscribe to these events.
+
+paths:
+  /notifications/task-updated:
+    post:
+      tags:
+        - Notifications
+      summary: Broadcast task update notification
+      description: |
+        Internal endpoint called by TaskService after task updates.
+        Broadcasts SignalR event to all connected clients.
+      operationId: broadcastTaskUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdatedEvent'
+      responses:
+        '202':
+          description: Notification broadcasted successfully
+        '400':
+          description: Invalid notification payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /notifications/comment-added:
+    post:
+      tags:
+        - Notifications
+      summary: Broadcast comment added notification
+      description: |
+        Internal endpoint called by TaskService after comment creation.
+        Broadcasts SignalR event to all connected clients.
+      operationId: broadcastCommentAdded
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentAddedEvent'
+      responses:
+        '202':
+          description: Notification broadcasted successfully
+        '400':
+          description: Invalid notification payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /notifications/comment-updated:
+    post:
+      tags:
+        - Notifications
+      summary: Broadcast comment updated notification
+      description: |
+        Internal endpoint called by TaskService after comment edit.
+        Broadcasts SignalR event to all connected clients.
+      operationId: broadcastCommentUpdated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdatedEvent'
+      responses:
+        '202':
+          description: Notification broadcasted successfully
+        '400':
+          description: Invalid notification payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /notifications/comment-deleted:
+    post:
+      tags:
+        - Notifications
+      summary: Broadcast comment deleted notification
+      description: |
+        Internal endpoint called by TaskService after comment deletion.
+        Broadcasts SignalR event to all connected clients.
+      operationId: broadcastCommentDeleted
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDeletedEvent'
+      responses:
+        '202':
+          description: Notification broadcasted successfully
+        '400':
+          description: Invalid notification payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TaskUpdatedEvent:
+      type: object
+      required:
+        - eventType
+        - taskId
+        - projectId
+        - updatedFields
+        - timestamp
+      properties:
+        eventType:
+          type: string
+          enum: ["TaskUpdated"]
+          description: Event type discriminator
+          example: "TaskUpdated"
+        taskId:
+          type: string
+          format: uuid
+          description: ID of the updated task
+        projectId:
+          type: string
+          format: uuid
+          description: ID of the parent project
+        updatedFields:
+          type: object
+          description: Fields that were updated
+          properties:
+            status:
+              type: string
+              nullable: true
+              enum: ["To Do", "In Progress", "In Review", "Done"]
+              description: New status (if changed)
+            assignedTo:
+              type: string
+              format: uuid
+              nullable: true
+              description: New assignee ID (if changed)
+            title:
+              type: string
+              nullable: true
+              description: New title (if changed)
+          example:
+            status: "In Progress"
+            assignedTo: "323e4567-e89b-12d3-a456-426614174001"
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2025-10-23T15:30:00Z"
+
+    CommentAddedEvent:
+      type: object
+      required:
+        - eventType
+        - commentId
+        - taskId
+        - projectId
+        - authorId
+        - text
+        - timestamp
+      properties:
+        eventType:
+          type: string
+          enum: ["CommentAdded"]
+          description: Event type discriminator
+          example: "CommentAdded"
+        commentId:
+          type: string
+          format: uuid
+          description: ID of the new comment
+        taskId:
+          type: string
+          format: uuid
+          description: ID of the parent task
+        projectId:
+          type: string
+          format: uuid
+          description: ID of the parent project
+        authorId:
+          type: string
+          format: uuid
+          description: ID of the comment author
+        authorName:
+          type: string
+          description: Name of the comment author
+          example: "Sarah Chen"
+        text:
+          type: string
+          description: Comment text
+          example: "I've started working on this task"
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2025-10-23T15:30:00Z"
+
+    CommentUpdatedEvent:
+      type: object
+      required:
+        - eventType
+        - commentId
+        - taskId
+        - projectId
+        - newText
+        - timestamp
+      properties:
+        eventType:
+          type: string
+          enum: ["CommentUpdated"]
+          description: Event type discriminator
+          example: "CommentUpdated"
+        commentId:
+          type: string
+          format: uuid
+          description: ID of the updated comment
+        taskId:
+          type: string
+          format: uuid
+          description: ID of the parent task
+        projectId:
+          type: string
+          format: uuid
+          description: ID of the parent project
+        newText:
+          type: string
+          description: Updated comment text
+          example: "I've completed the initial implementation"
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2025-10-23T16:00:00Z"
+
+    CommentDeletedEvent:
+      type: object
+      required:
+        - eventType
+        - commentId
+        - taskId
+        - projectId
+        - timestamp
+      properties:
+        eventType:
+          type: string
+          enum: ["CommentDeleted"]
+          description: Event type discriminator
+          example: "CommentDeleted"
+        commentId:
+          type: string
+          format: uuid
+          description: ID of the deleted comment
+        taskId:
+          type: string
+          format: uuid
+          description: ID of the parent task
+        projectId:
+          type: string
+          format: uuid
+          description: ID of the parent project
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2025-10-23T16:15:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "INVALID_PAYLOAD"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid notification payload"
+        details:
+          type: object
+          nullable: true
+          description: Additional error details
+          additionalProperties: true
+
+# SignalR Event Documentation (not REST endpoints)
+x-signalr-events:
+  description: |
+    SignalR events broadcasted to connected Blazor Server clients.
+    Clients subscribe to these events using HubConnection.On<T>().
+
+  events:
+    - name: TaskUpdated
+      description: Broadcasted when a task is updated (status, assignment, etc.)
+      payload: TaskUpdatedEvent
+      clients: All clients viewing the same project
+      example: |
+        hubConnection.On<TaskUpdatedEvent>("TaskUpdated", (event) => {
+          // Update UI: move task card to new column
+          // Refresh task details if viewing the task
+          // Show toast notification
+        });
+
+    - name: CommentAdded
+      description: Broadcasted when a new comment is added to a task
+      payload: CommentAddedEvent
+      clients: All clients viewing the same task
+      example: |
+        hubConnection.On<CommentAddedEvent>("CommentAdded", (event) => {
+          // Append new comment to comment list
+          // Increment comment count badge
+          // Show toast notification (if not the author)
+        });
+
+    - name: CommentUpdated
+      description: Broadcasted when a comment is edited
+      payload: CommentUpdatedEvent
+      clients: All clients viewing the same task
+      example: |
+        hubConnection.On<CommentUpdatedEvent>("CommentUpdated", (event) => {
+          // Update comment text in UI
+          // Update "edited" timestamp
+        });
+
+    - name: CommentDeleted
+      description: Broadcasted when a comment is deleted
+      payload: CommentDeletedEvent
+      clients: All clients viewing the same task
+      example: |
+        hubConnection.On<CommentDeletedEvent>("CommentDeleted", (event) => {
+          // Remove comment from UI
+          // Decrement comment count badge
+        });
+
+  connection:
+    url: /hubs/notifications
+    protocol: SignalR (WebSockets + fallback)
+    authentication: X-Current-User-Id header on initial connection
+    reconnection: Automatic with exponential backoff (Blazor Server built-in)
