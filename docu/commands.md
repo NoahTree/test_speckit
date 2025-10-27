@@ -1,10 +1,28 @@
 # Spec-Kit 명령어 완벽 가이드
 
-Spec-Kit의 8개 슬래시 커맨드를 실제 예제와 함께 상세히 설명합니다.
+**목표**: 모든 CLI 및 슬래시 커맨드 마스터하기
+
+**소요 시간**: 1시간 (읽기), 참고 자료로 활용
+
+Spec-Kit의 **CLI 명령어** 2개와 **슬래시 커맨드** 8개를 실제 예제와 함께 상세히 설명합니다.
+
+**📖 관련 문서**:
+- [quickstart.md](./quickstart.md) - 빠른 시작
+- [workflow.md](./workflow.md) - 워크플로우 가이드
+- [getting-started.md](./getting-started.md) - 첫 프로젝트
 
 ---
 
 ## 📋 명령어 개요
+
+### CLI 명령어 (터미널)
+
+| 명령어 | 목적 | 사용 시점 |
+|--------|------|-----------|
+| `specify init` | 프로젝트 초기화 | ✅ 프로젝트 시작 시 |
+| `specify check` | 필수 도구 확인 | ✅ 초기화 전 |
+
+### 슬래시 커맨드 (AI 도구 내)
 
 | 명령어 | 목적 | 입력 | 출력 | 필수 여부 |
 |--------|------|------|------|-----------|
@@ -18,6 +36,154 @@ Spec-Kit의 8개 슬래시 커맨드를 실제 예제와 함께 상세히 설명
 | `/speckit.checklist` | 체크리스트 생성 | 요구사항 | checklists/*.md | ⭕ 선택 |
 
 ---
+
+## 🔧 CLI 명령어 (터미널)
+
+### 0️⃣ specify check
+
+#### 개요
+필수 도구 설치 여부를 확인합니다.
+
+#### 사용법
+```bash
+specify check
+```
+
+#### 출력 예제
+```bash
+✅ Git: Installed (version 2.43.0)
+✅ Claude Code: Installed
+⚠️  GitHub Copilot: Not found
+ℹ️  Cursor: Not installed (optional)
+```
+
+---
+
+### 0️⃣ specify init
+
+#### 개요
+새 Spec-Kit 프로젝트를 초기화합니다.
+
+#### 기본 사용법
+```bash
+# 새 디렉토리 생성
+specify init my-project --ai claude
+
+# 현재 디렉토리 사용
+specify init . --ai claude
+specify init --here --ai claude
+
+# Git 없이 초기화
+specify init my-project --ai claude --no-git
+```
+
+#### 주요 옵션
+
+| 옵션 | 설명 | 예제 |
+|------|------|------|
+| `--ai` | AI 도구 선택 | `--ai claude` |
+| `--here` | 현재 디렉토리 사용 | `--here` |
+| `--no-git` | Git 저장소 생성 안함 | `--no-git` |
+| `--force` | 덮어쓰기 강제 | `--force` |
+| `--ignore-agent-tools` | AI 도구 체크 스킵 | `--ignore-agent-tools` |
+
+#### 지원 AI 도구
+
+```
+claude          - Claude Code (Anthropic)
+copilot         - GitHub Copilot
+cursor-agent    - Cursor Agent
+gemini          - Google Gemini
+windsurf        - Windsurf
+qwen            - Qwen
+opencode        - OpenCode
+codex           - OpenAI Codex
+kilocode        - KiloCode
+auggie          - Auggie
+codebuddy       - Code Buddy
+amp             - Amp
+q               - Amazon Q
+```
+
+#### 실행 프로세스
+
+```bash
+$ specify init taskify-app --ai claude
+
+[1/6] 필수 도구 확인...
+✅ Git installed
+✅ Claude Code detected
+
+[2/6] AI 도구 선택...
+Selected: claude
+
+[3/6] 템플릿 다운로드...
+Downloading from GitHub...
+
+[4/6] 프로젝트 구조 생성...
+Creating:
+  ├── specs/
+  ├── .specify/
+  │   ├── memory/
+  │   ├── scripts/
+  │   └── templates/
+  └── .git/
+
+[5/6] Git 저장소 초기화...
+✅ Git repository initialized
+
+[6/6] AI 명령어 설정...
+✅ Slash commands configured for Claude Code
+
+✨ Project 'taskify-app' initialized successfully!
+
+Next steps:
+  cd taskify-app
+  /speckit.constitution
+```
+
+#### 생성되는 구조
+
+```
+my-project/
+├── specs/                      # 기능 명세서 저장
+├── .specify/
+│   ├── memory/
+│   │   └── constitution.md    # 프로젝트 헌법 (초기화 시 빈 파일)
+│   ├── scripts/
+│   │   └── bash/              # 자동화 스크립트
+│   └── templates/             # 문서 템플릿
+│       ├── spec-template.md
+│       ├── plan-template.md
+│       ├── tasks-template.md
+│       ├── checklist-template.md
+│       └── agent-file-template.md
+├── .gitignore                 # Git 제외 목록
+└── README.md                  # 프로젝트 설명
+```
+
+#### 고급 예제
+
+##### 예제 1: 현재 폴더에 강제 초기화
+```bash
+# 현재 폴더가 비어있지 않아도 진행
+specify init --here --ai claude --force
+```
+
+##### 예제 2: Git 없이 독립 실행형
+```bash
+specify init standalone-project --ai copilot --no-git
+```
+
+##### 예제 3: AI 도구 체크 생략
+```bash
+# CI/CD 환경 등에서 사용
+specify init ci-project --ai claude --ignore-agent-tools
+```
+
+---
+
+## 🎯 슬래시 커맨드 (AI 도구 내)
 
 ## 1️⃣ /speckit.constitution
 

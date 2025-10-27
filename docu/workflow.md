@@ -1,6 +1,16 @@
 # Spec-Kit 워크플로우 완벽 가이드
 
+**목표**: 6단계 Spec-Driven Development 워크플로우 마스터하기
+
+**소요 시간**: 1시간 (읽기), 2-3시간 (실습)
+
 Spec-Kit의 6단계 워크플로우를 실제 Taskify 프로젝트 예제와 함께 상세히 설명합니다.
+
+**📖 관련 문서**:
+- [quickstart.md](./quickstart.md) - 5분 빠른 시작
+- [getting-started.md](./getting-started.md) - 첫 프로젝트 적용
+- [commands.md](./commands.md) - 명령어 레퍼런스
+- [examples.md](./examples.md) - Taskify 실제 사례
 
 ---
 

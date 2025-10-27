@@ -1,6 +1,15 @@
 # Spec-Kit 베스트 프랙티스
 
+**목표**: Spec-Kit을 팀 프로젝트에 효과적으로 적용하기
+
+**소요 시간**: 30분 (읽기), 지속적 적용
+
 실제 프로젝트 경험을 바탕으로 한 실용적인 가이드입니다.
+
+**📖 관련 문서**:
+- [workflow.md](./workflow.md) - 기본 워크플로우
+- [examples.md](./examples.md) - 실제 사례
+- [commands.md](./commands.md) - 명령어 활용법
 
 ---
 

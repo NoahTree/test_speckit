@@ -1,6 +1,15 @@
 # Taskify 프로젝트 사례 연구
 
+**목표**: 실제 프로젝트 사례를 통해 Spec-Driven Development 이해하기
+
+**소요 시간**: 30-60분 (읽기), 2-3시간 (재현)
+
 Spec-Kit을 활용한 실제 프로젝트 구현 사례를 단계별로 분석합니다.
+
+**📖 관련 문서**:
+- [workflow.md](./workflow.md) - 워크플로우 상세 가이드
+- [getting-started.md](./getting-started.md) - 직접 프로젝트 만들기
+- [best-practices.md](./best-practices.md) - 베스트 프랙티스
 
 ---
 
